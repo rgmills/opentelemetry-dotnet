@@ -4,7 +4,6 @@ using Honeycomb.Models;
 using Microsoft.Extensions.Options;
 using System;
 using OpenTelemetry;
-using OpenTelemetry.Trace;
 using System.Diagnostics;
 
 namespace Honeycomb.OpenTelemetry
@@ -49,7 +48,8 @@ namespace Honeycomb.OpenTelemetry
         {
             var list = new List<HoneycombEvent>();
 
-            var ev = new HoneycombEvent {
+            var ev = new HoneycombEvent
+            {
                 EventTime = activity.StartTimeUtc,
                 DataSetName = _settings.Value.DefaultDataSet
             };
@@ -66,10 +66,10 @@ namespace Honeycomb.OpenTelemetry
 
             foreach (var label in activity.Tags)
             {
-                ev.Data.Add(label.Key, label.Value.ToString());
+                ev.Data.Add(label.Key, label.Value?.ToString());
             }
 
-            var resource = activity.GetResource();
+            var resource = ParentProvider.GetResource();
             foreach (var attribute in resource.Attributes)
             {
                 // map service.name to service_name
@@ -85,7 +85,8 @@ namespace Honeycomb.OpenTelemetry
 
             foreach (var message in activity.Events)
             {
-                var messageEvent = new HoneycombEvent {
+                var messageEvent = new HoneycombEvent
+                {
                     EventTime = message.Timestamp.UtcDateTime,
                     DataSetName = _settings.Value.DefaultDataSet,
                     Data = message.Tags.ToDictionary(a => a.Key, a => a.Value)
@@ -99,7 +100,8 @@ namespace Honeycomb.OpenTelemetry
 
             foreach (var link in activity.Links)
             {
-                var linkEvent = new HoneycombEvent {
+                var linkEvent = new HoneycombEvent
+                {
                     EventTime = activity.StartTimeUtc,
                     DataSetName = _settings.Value.DefaultDataSet,
                     Data = link.Tags.ToDictionary(a => a.Key, a => a.Value)

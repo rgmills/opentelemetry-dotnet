@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Honeycomb.OpenTelemetry;
 using Honeycomb.Models;
 using Honeycomb;
+using OpenTelemetry;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
 
@@ -36,7 +37,7 @@ namespace sample
                 builder.UseHoneycomb(sp)
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .SetResource(Resources.CreateServiceResource("my-service-name"));
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("my-service-name"));
             });
         }
 
